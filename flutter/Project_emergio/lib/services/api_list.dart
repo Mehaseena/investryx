@@ -1,0 +1,35 @@
+class ApiList {
+  static String? login = 'https://investryx.com/api/login';
+  static String? register = 'https://investryx.com/api/register';
+  static String? registerOtp = 'https://investryx.com/api/regotp';
+  static String? onesignalId = 'https://investryx.com/api/onesignal';
+  static String? forgotPassword = 'https://investryx.com/api/forgotpwd';
+  static String? forgotOtpConform = 'https://investryx.com/api/otpconfirm';
+  static String? changePassword = 'https://investryx.com/api/changepwd';
+  static String? saleProfile = 'https://investryx.com/api/profile';
+  static String? businessAddPage = 'https://investryx.com/api/business';
+  static String? investorAddPage = 'https://investryx.com/api/investor';
+  static String? franchiseAddPage = 'https://investryx.com/api/franchise';
+  static String? advisorAddPage = 'https://investryx.com/api/advisor';
+  static String? contactUs = 'https://investryx.com/api/contact';
+  static String? userProfile = 'https://investryx.com/api/user';
+  static String? search = 'https://investryx.com/api/search';
+  static String? wishList = 'https://investryx.com/api/wishlist';
+  static String? suggestion = 'https://investryx.com/api/suggest';
+  static String? testimonial = 'https://investryx.com/api/testimonial';
+  static String? recentActivities = 'https://investryx.com/api/recent';
+  static String? latestTransactions = 'https://investryx.com/api/activity';
+  static String latestPost = 'https://investryx.com/api/latest';
+  static String? banners = 'https://investryx.com/api/banner';
+  static String? questionnaire = 'https://investryx.com/api/prefer';
+  static String? recommended = 'https://investryx.com/api/recommended';
+  static String? pricing = 'https://investryx.com/api/plans';
+  static String? checkSubscribed = 'https://investryx.com/api/subscribe';
+  static String? featured = 'https://investryx.com/api/featured';
+  static String? social = 'https://investryx.com/api/social';
+  static String? notification = 'https://investryx.com/api/notification';
+  static String? graph = 'https://investryx.com/api/graph';
+  static String? inbox = 'https://investryx.com/chat/rooms';
+  static String? chatUserCheck = 'https://investryx.com/api/userid';
+  static String? message = 'https://investryx.com/chat/chats';
+}
