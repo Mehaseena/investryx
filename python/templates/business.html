@@ -1,0 +1,30 @@
+{% extends 'common.html' %}
+{% block content %}
+  <div class="p-3">
+    <h5>Business</h5>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">User</th>
+          <th scope="col">Name of Business</th>
+          <th scope="col">Industry</th>
+          <th scope="col">Address</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for i in business %}
+          <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>{{ i.user.username }}</td>
+            <td>{{ i.name }}</td>
+            <td>{{ i.industry }}</td>
+            <td>{{ i.address_1 }}, {{ i.address_2 }}, {{ i.city }}, {{ i.pin }}, {{ i.state }}</td>
+            <td></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

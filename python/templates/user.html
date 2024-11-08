@@ -1,0 +1,26 @@
+{% extends 'common.html' %}
+{% block content %}
+  <div class="p-3">
+    <h5>User</h5>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Username</th>
+          <th scope="col">Date of Joining</th>
+          <th scope="col">Last Logged on</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for i in user %}
+          <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>{{ i.username }}</td>
+            <td>{{ i.date_joined }}</td>
+            <td>{{ i.last_login }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

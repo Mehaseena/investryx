@@ -1,0 +1,6 @@
+# Locust files
+locustfile.py
+
+# Environments
+.env
+

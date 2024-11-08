@@ -1,0 +1,112 @@
+#version: '3.8'
+
+services:
+  webserver:
+    container_name: investryx_webserver
+    image: nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: always
+    volumes:
+      - ./nginx/conf/:/etc/nginx/conf.d/:ro
+      - ./certbot/www:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/nginx/ssl/:rw  # Mount SSL certs for Nginx
+      - /etc/letsencrypt:/etc/letsencrypt:ro  # Mount Let's Encrypt certificates
+    depends_on:
+      - backend
+
+  certbot:
+    container_name: certbot
+    image: certbot/certbot:latest
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw   # Mount Let's Encrypt certificates to Certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+  db:
+    image: mysql:8.0
+    restart: always
+    container_name: investryx_database
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}  
+      MYSQL_DATABASE: ${MYSQL_DATABASE}            
+      MYSQL_USER: ${MYSQL_USER}                  
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}         
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql  # Mount the init script
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  migrate_db:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: investryx_migrate_db
+    command: sh -c "python3 manage.py makemigrations && python3 manage.py migrate auth && python3 manage.py migrate contenttypes && python3 manage.py migrate admin && python3 manage.py migrate sessions && python3 manage.py migrate --noinput && python3 manage.py createcachetable"
+    volumes:
+      - .:/smerger
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+#    container_name: investryx_backend
+    command: python manage.py runserver 0.0.0.0:8000
+    restart: always
+    volumes:
+      - .:/smerger
+    ports:
+      - "8000:8000"  
+    environment:
+      - VIRTUAL_HOST=investryx.com
+      - VIRTUAL_PORT=8000
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+  migrate_setup:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: investryx_migrate_setup
+    command: sh -c "python3 manage.py create_superuser && python3 manage.py collectstatic --noinput"
+    volumes:
+      - .:/smerger
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - migrate_db
+    restart: "no"
+
+  uvicorn:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: investryx_uvicorn
+    command: uvicorn smerger.asgi:application --host 0.0.0.0 --port 8001
+    volumes:
+      - .:/investryx
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
