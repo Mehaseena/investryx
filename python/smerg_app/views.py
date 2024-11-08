@@ -267,7 +267,6 @@ class Profiles(APIView):
         return Response({'status':False,'message': 'Token is not passed'})
 
 # Business
-# Business
 class BusinessList(APIView):
     @swagger_auto_schema(operation_description="Business post fetching",
     responses={200: "Business Details fetched succesfully",400:"Passes an error message"})
