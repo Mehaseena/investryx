@@ -132,7 +132,7 @@ class ForgotPwd(APIView):
     def post(self,request):
         if UserProfile.objects.filter(username=request.data.get('number')).exists() and not UserProfile.objects.get(username=request.data.get('number')).block:
             otp = random.randint(0000,9999)
-            key = f'otp_{request.data.get('phone')}'
+            key = f'otp_{request.data.get('number')}'
             if not cache.get(key):
                 cache.set(key, f"{otp:04d}", timeout=60)
             twilio_int(f"{otp:04d}", request.data.get('number'))
@@ -193,7 +193,6 @@ class Profiles(APIView):
         403: "User is blocked or authentication fails.",
         404: "User not found for the provided token."
     })
-
     def get(self,request):
         if request.headers.get('token'):
             if UserProfile.objects.filter(auth_token=request.headers.get('token')).exists() and not UserProfile.objects.get(auth_token=request.headers.get('token')).block:
