@@ -11,3 +11,7 @@ class Command(BaseCommand):
         for i in Subscription.objects.all():
             if i.expiry_date == today:
                 i.delete()
+
+        for i in Banner.objects.all():
+            if i.validity_date == today:
+                i.delete()
