@@ -114,7 +114,6 @@ class SaleProfiles(models.Model):
     staff = models.IntegerField(null=True, blank=True)
 
     # Common file fields
-    
     logo = models.FileField(upload_to='combined/images', null=True, blank=True)
     image1 = models.FileField(upload_to='combined/images', null=True, blank=True)
     image2 = models.FileField(upload_to='combined/images', null=True, blank=True)
