@@ -243,6 +243,7 @@ class Profiles(APIView):
                 user = UserProfile.objects.get(auth_token=request.headers.get('token'))
                 mutable_data = request.data.copy()
                 profile = Profile.objects.get(id=id)
+                mutable_data['verified'] = False
                 serializer = ProfileSerial(profile, data=mutable_data, partial=True)
                 if serializer.is_valid():
                     serializer.save()
@@ -274,10 +275,10 @@ class BusinessList(APIView):
         if request.headers.get('token'):
             if UserProfile.objects.filter(auth_token=request.headers.get('token')).exists() and not UserProfile.objects.get(auth_token=request.headers.get('token')).block:
                 if id == 0:
-                    serializer = SaleProfilesSerial(SaleProfiles.objects.filter(entity_type='business', block=False).order_by('-id'), many=True)
+                    serializer = SaleProfilesSerial(SaleProfiles.objects.filter(entity_type='business', block=False, verified=True).order_by('-id'), many=True)
                 else:
                     user = UserProfile.objects.get(auth_token=request.headers.get('token'))
-                    serializer = SaleProfilesSerial(SaleProfiles.objects.filter(entity_type='business', user=user, block=False).order_by('-id'), many=True)
+                    serializer = SaleProfilesSerial(SaleProfiles.objects.filter(entity_type='business', user=user, block=False, verified=True).order_by('-id'), many=True)
                 return Response(serializer.data)
             return Response({'status':False,'message': 'User doesnot exist'})
         return Response({'status':False,'message': 'Token is not passed'})
@@ -329,6 +330,13 @@ class BusinessList(APIView):
                 business = SaleProfiles.objects.get(id=id)
                 serializer = SaleProfilesSerial(business, data=mutable_data,partial=True)
                 if serializer.is_valid():
+                    # has_changes = False
+                    # for key, value in mutable_data.items():
+                    #     if getattr(business, key) != value:
+                    #         has_changes = True
+                    #         break
+                    # if has_changes:
+                    #     business.verified = False
                     serializer.save()
                     return Response({'status':True})
                 return Response(serializer.errors)
@@ -358,10 +366,10 @@ class InvestorList(APIView):
         if request.headers.get('token'):
             if UserProfile.objects.filter(auth_token=request.headers.get('token')).exists() and not UserProfile.objects.get(auth_token=request.headers.get('token')).block:
                 if id == 0:
-                    serializer = SaleProfilesSerial(SaleProfiles.objects.filter(entity_type='investor', block=False).order_by('-id'), many=True)
+                    serializer = SaleProfilesSerial(SaleProfiles.objects.filter(entity_type='investor', block=False, verified=True).order_by('-id'), many=True)
                 else:
                     user = UserProfile.objects.get(auth_token=request.headers.get('token'))
-                    serializer = SaleProfilesSerial(SaleProfiles.objects.filter(entity_type='investor', user=user, block=False).order_by('-id'), many=True)
+                    serializer = SaleProfilesSerial(SaleProfiles.objects.filter(entity_type='investor', user=user, block=False, verified=True).order_by('-id'), many=True)
                 return Response(serializer.data)
             return Response({'status':False,'message': 'User doesnot exist'})
         return Response({'status':False,'message': 'Token is not passed'})
@@ -434,10 +442,10 @@ class FranchiseList(APIView):
         if request.headers.get('token'):
             if UserProfile.objects.filter(auth_token=request.headers.get('token')).exists() and not UserProfile.objects.get(auth_token=request.headers.get('token')).block:
                 if id == 0:
-                    serializer = SaleProfilesSerial(SaleProfiles.objects.filter(entity_type='franchise', block=False).order_by('-id'), many=True)
+                    serializer = SaleProfilesSerial(SaleProfiles.objects.filter(entity_type='franchise', block=False, verified=True).order_by('-id'), many=True)
                 else:
                     user = UserProfile.objects.get(auth_token=request.headers.get('token'))
-                    serializer = SaleProfilesSerial(SaleProfiles.objects.filter(entity_type='franchise', user=user, block=False).order_by('-id'), many=True)
+                    serializer = SaleProfilesSerial(SaleProfiles.objects.filter(entity_type='franchise', user=user, block=False, verified=True).order_by('-id'), many=True)
                 return Response(serializer.data)
             return Response({'status':False,'message': 'User doesnot exist'})
         return Response({'status':False,'message': 'Token is not passed'})

@@ -21,4 +21,6 @@ urlpatterns = [
     path('userconnections',Userconnections.as_view()),
     path('userconnectioncount',UserConnectionCount.as_view()),
     path('changepwd',ChangePwd.as_view()), # Change Password
+    path('verify-posts', AdminPostVerification.as_view()),
+    path('verify-posts/<int:id>', AdminPostVerification.as_view()),
 ]

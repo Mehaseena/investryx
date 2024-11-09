@@ -129,6 +129,7 @@ class SaleProfiles(models.Model):
     proof3 = models.FileField(upload_to='combined/proof', null=True, blank=True)
     proof4 = models.FileField(upload_to='combined/proof', null=True, blank=True)
     block = models.BooleanField(default=False)
+    verified = models.BooleanField(default=False) 
 
     def __str__(self):
         return f"{self.name} ({self.entity_type})"

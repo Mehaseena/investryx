@@ -1289,3 +1289,54 @@ class ChangePwd(APIView):
         return Response({'status':True})
     
 
+class AdminPostVerification(APIView):
+
+    @swagger_auto_schema(
+        operation_description="Fetch all posts pending verification",
+        responses={200: "Pending posts fetched successfully"}
+    )
+    def get(self, request):
+        if request.headers.get('token'):
+            if UserProfile.objects.filter(auth_token=request.headers.get('token')).exists() and UserProfile.objects.get(auth_token=request.headers.get('token')).is_superuser:
+        # Retrieve all posts that are inactive and not blocked
+                pending_posts = SaleProfiles.objects.filter(verified=False, block=False)
+        serializer = SaleProfilesSerial(pending_posts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_description="Approve or block a post",
+        request_body=None,
+        responses={200: "{'status': True, 'message': 'Post status updated successfully'}"}
+    )
+    def patch(self, request, id):
+        action = request.data.get('action')
+
+        if request.headers.get('token'):
+            if UserProfile.objects.filter(auth_token=request.headers.get('token')).exists() and UserProfile.objects.get(auth_token=request.headers.get('token')).is_superuser:
+        
+        # Fetch the specific post by ID
+                try:
+                    post = SaleProfiles.objects.get(id=id)
+                except SaleProfiles.DoesNotExist:
+                    return Response({'status': False, 'message': 'Post does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+                # Approve or block the post based on action
+                if action == 'approve':
+                    post.verified = True
+                    post.block = False
+                    message = 'Post approved successfully'
+                elif action == 'block':
+                    post.verified = False
+                    post.block = True
+                    message = 'Post blocked successfully'
+                else:
+                    return Response({'status': False, 'message': 'Invalid action'}, status=status.HTTP_400_BAD_REQUEST)
+
+                post.save()
+                return Response({'status': True, 'message': message}, status=status.HTTP_200_OK)
+            else:
+                return Response({'status':False,'message': 'User doesnot exist'})
+
+        
+    
+
