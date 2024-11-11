@@ -114,7 +114,6 @@ class SaleProfiles(models.Model):
     staff = models.IntegerField(null=True, blank=True)
 
     # Common file fields
-    
     logo = models.FileField(upload_to='combined/images', null=True, blank=True)
     image1 = models.FileField(upload_to='combined/images', null=True, blank=True)
     image2 = models.FileField(upload_to='combined/images', null=True, blank=True)
@@ -188,7 +187,7 @@ class ActivityLog(models.Model):
 # Event/ Offer Banners
 class Banner(models.Model):
     img = models.FileField(upload_to='banners/images')
-    type = models.CharField(max_length=100, choices=[('business', 'Business'), ('advisor', 'Advisor'), ('franchise', 'Franchise'), ('investor', 'Investor'),('all','All')])
+    type = models.CharField(max_length=100, choices=[('business', 'Business'), ('advisor', 'Advisor'), ('franchise', 'Franchise'), ('investor', 'Investor')])
     created_date = models.DateTimeField(auto_now_add=True)
     validity_date = models.DateField()
 
@@ -204,25 +203,27 @@ class Preference(models.Model):
     budget = models.CharField(max_length=500, null=True, blank=True)
     price_starting = models.CharField(max_length=500, null=True, blank=True)
     price_ending = models.CharField(max_length=500, null=True, blank=True)
+    frequency = models.CharField(max_length=500, null=True, blank=True)
 
     ## Business
-    stage = models.CharField(max_length=500, null=True, blank=True)
-    goals = models.CharField(max_length=500, null=True, blank=True)
-    duration = models.CharField(max_length=500, null=True, blank=True)
+    business_stage = models.CharField(max_length=500, null=True, blank=True)
+    business_goal = models.CharField(max_length=500, null=True, blank=True)
+    business_duration = models.CharField(max_length=500, null=True, blank=True)
 
     ## Investor
-    interest = models.CharField(max_length=500, null=True, blank=True)
-    horizon = models.CharField(max_length=500, null=True, blank=True)
-    risk = models.CharField(max_length=500, null=True, blank=True)
-    investing_experiance = models.CharField(max_length=500, null=True, blank=True)
+    investment_interest = models.CharField(max_length=500, null=True, blank=True)
+    investment_horizon = models.CharField(max_length=500, null=True, blank=True)
+    risk_tolerence = models.CharField(max_length=500, null=True, blank=True)
+    investment_experiance = models.CharField(max_length=500, null=True, blank=True)
     
     ## Franchise
+    buy_start = models.CharField(max_length=500, null=True, blank=True)
     franchise_type = models.CharField(max_length=500, null=True, blank=True)
-    brands = models.CharField(max_length=500, null=True, blank=True)
+    franchise_brands = models.CharField(max_length=500, null=True, blank=True)
 
     ## Advisor
     expertise = models.CharField(max_length=500, null=True, blank=True)
-    client = models.CharField(max_length=500, null=True, blank=True)
+    client_type = models.CharField(max_length=500, null=True, blank=True)
     advisor_experiance = models.CharField(max_length=500, null=True, blank=True)
     advisory_duration = models.CharField(max_length=500, null=True, blank=True)
 
