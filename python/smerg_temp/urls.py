@@ -20,7 +20,9 @@ urlpatterns = [
     path('dashboard',DashboardView.as_view()),
     path('userconnections',Userconnections.as_view()),
     path('userconnectioncount',UserConnectionCount.as_view()),
-    path('changepwd',ChangePwd.as_view()), # Change Password
+    # path('changepwd',ChangePwd.as_view()), # Change Password
     path('verify-posts', AdminPostVerification.as_view()),
     path('verify-posts/<int:id>', AdminPostVerification.as_view()),
+    path('admin_create', Adminview.as_view()),
+    path('admin_create/<int:id>', Adminview.as_view()),
 ]

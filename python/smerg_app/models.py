@@ -269,11 +269,6 @@ class Activity(models.Model):
     created = models.DateTimeField(auto_now_add=True)  # Timestamp for the first interaction
     count = models.PositiveIntegerField(default=1,null=True)
 
-    class Meta:
-        unique_together = ('user', 'post')  # Ensure a user can only have one activity record per post
-
-    def __str__(self):
-        return f"{self.user.username} viewed {self.post.name}"
 
 # Report model
 class Report(models.Model):

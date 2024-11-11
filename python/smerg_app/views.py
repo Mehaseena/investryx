@@ -326,19 +326,19 @@ class BusinessList(APIView):
         if request.headers.get('token'):
             if UserProfile.objects.filter(auth_token=request.headers.get('token')).exists() and not UserProfile.objects.get(auth_token=request.headers.get('token')).block:
                 user = UserProfile.objects.get(auth_token=request.headers.get('token'))
+                if user:
+                    try:
+                       business = SaleProfiles.objects.get(id=id)
+                    except SaleProfiles.DoesNotExist:
+                        return Response({'status': False, 'message': 'Business post does not exist'}, status=status.HTTP_404_NOT_FOUND)
                 mutable_data = request.data.copy()
-                business = SaleProfiles.objects.get(id=id)
-                serializer = SaleProfilesSerial(business, data=mutable_data,partial=True)
+                mutable_data['verified'] = False
+                serializer = SaleProfilesSerial(business, data=mutable_data, partial=True)
                 if serializer.is_valid():
-                    # has_changes = False
-                    # for key, value in mutable_data.items():
-                    #     if getattr(business, key) != value:
-                    #         has_changes = True
-                    #         break
-                    # if has_changes:
-                    #     business.verified = False
-                    serializer.save()
-                    return Response({'status':True})
+                    post = serializer.save()
+                    # post.verified = False
+                    # post.save()
+                    return Response({'status':True,'message': 'Business updated successfully'})
                 return Response(serializer.errors)
             return Response({'status':False,'message': 'User doesnot exist'})
         return Response({'status':False,'message': 'Token is not passed'})

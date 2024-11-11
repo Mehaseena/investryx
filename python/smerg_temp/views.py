@@ -1186,7 +1186,7 @@ class DashboardView(APIView):
         }, status=status.HTTP_200_OK)
 
 class Userconnections(APIView):
-    @swagger_auto_schema(operation_description="Fetch recent enquiries",
+    @swagger_auto_schema(operation_description="Fetch user connections",
     responses={200: "{'status':True,'message': 'Fetched successfully'}"})
     def get(self, request):
         token = request.headers.get('token')
@@ -1298,10 +1298,11 @@ class AdminPostVerification(APIView):
     def get(self, request):
         if request.headers.get('token'):
             if UserProfile.objects.filter(auth_token=request.headers.get('token')).exists() and UserProfile.objects.get(auth_token=request.headers.get('token')).is_superuser:
-        # Retrieve all posts that are inactive and not blocked
                 pending_posts = SaleProfiles.objects.filter(verified=False, block=False)
-        serializer = SaleProfilesSerial(pending_posts, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+                serializer = SaleProfilesSerial(pending_posts, many=True)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({'status':False,'message': 'User doesnot exist'})
+        return Response({'status':False,'message': 'Token doesnot exist'})
 
     @swagger_auto_schema(
         operation_description="Approve or block a post",
@@ -1309,34 +1310,97 @@ class AdminPostVerification(APIView):
         responses={200: "{'status': True, 'message': 'Post status updated successfully'}"}
     )
     def patch(self, request, id):
-        action = request.data.get('action')
-
         if request.headers.get('token'):
             if UserProfile.objects.filter(auth_token=request.headers.get('token')).exists() and UserProfile.objects.get(auth_token=request.headers.get('token')).is_superuser:
-        
-        # Fetch the specific post by ID
-                try:
-                    post = SaleProfiles.objects.get(id=id)
-                except SaleProfiles.DoesNotExist:
+                if request.data.get('action'):
+                    action = request.data.get('action')
+                    if SaleProfiles.objects.filter(id=id).exists():
+                        post = SaleProfiles.objects.get(id=id)
+                        if not post.verified and action == "approve":
+                            post.verified = True
+                        elif action == "block":
+                            post.block = True
+                        post.save()
+                        return Response({'status': True, 'message': "Verified succesfully"}, status=status.HTTP_200_OK)
                     return Response({'status': False, 'message': 'Post does not exist'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'status': False, 'message': 'Action not specified'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'status':False,'message': 'User doesnot exist'})
+        return Response({'status':False,'message': 'Token doesnot exist'})
 
-                # Approve or block the post based on action
-                if action == 'approve':
-                    post.verified = True
-                    post.block = False
-                    message = 'Post approved successfully'
-                elif action == 'block':
-                    post.verified = False
-                    post.block = True
-                    message = 'Post blocked successfully'
-                else:
-                    return Response({'status': False, 'message': 'Invalid action'}, status=status.HTTP_400_BAD_REQUEST)
 
-                post.save()
-                return Response({'status': True, 'message': message}, status=status.HTTP_200_OK)
-            else:
-                return Response({'status':False,'message': 'User doesnot exist'})
+class Adminview(APIView):
+     @swagger_auto_schema(
+        operation_description="Fetch all admins",
+        responses={200: "All Admin fetched successfully"}
+    )
+     def get(self, request):
+        if request.headers.get('token'):
+            if UserProfile.objects.filter(auth_token=request.headers.get('token')).exists() and UserProfile.objects.get(auth_token=request.headers.get('token')).is_superuser and UserProfile.objects.get(auth_token=request.headers.get('token')).is_staff:
+                serializer = UserSerial(UserProfile.objects.filter(is_superuser=True).exclude(is_staff=True), many=True)
+                return Response(serializer.data)
+            return Response({'status':False,'message': 'User doesnot exist'})
+        return Response({'status':False,'message': 'Token doesnot exist'})
+     
 
-        
-    
+     @swagger_auto_schema(operation_description="creation of new admins",
+    request_body=openapi.Schema(type=openapi.TYPE_OBJECT, required=['email','password'],
+    properties={'email': openapi.Schema(type=openapi.TYPE_STRING, description='Email of the new admin'),
+                'password': openapi.Schema(type=openapi.TYPE_STRING, description='Password of the new admin')}), 
+    responses={200: "{'status':True,'message': 'Admins are'}", 400: "{'status':False,'message': 'Invalid post/user ID or block status'}"})
+     def post(self, request):
+         if request.headers.get('token'):
+             if UserProfile.objects.filter(auth_token=request.headers.get('token')).exists() and UserProfile.objects.get(auth_token=request.headers.get('token')).is_superuser and UserProfile.objects.get(auth_token=request.headers.get('token')).is_staff:
+                 # Create a new admin
+                 serializer = UserSerial(data=request.data)
+                 
+                 # Check if the email already exists
+                 if UserProfile.objects.filter(username=request.data.get('email')).exists():
+                     return Response({'status': False, 'message': 'Email already exists'})
+                 else:
+                     if serializer.is_valid():
+                         admin = serializer.save()
+                         admin.is_superuser = True
+                         admin.save()
+                         return Response({'status': True, 'message': 'Admin created successfully'})
+                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+             return Response({'status': False, 'message': 'User does not exist'})
+         return Response({'status': False, 'message': 'Token does not exist'})
+# ... existing code ...
+     @swagger_auto_schema(operation_description="Update existing admin",
+    request_body=openapi.Schema(type=openapi.TYPE_OBJECT, required=['email','password'],
+    properties={'email': openapi.Schema(type=openapi.TYPE_STRING, description='Email of the admin to update'),
+                'password': openapi.Schema(type=openapi.TYPE_STRING, description='New password of the admin')}), 
+    responses={200: "{'status':True,'message': 'Admin updated successfully'}", 400: "{'status':False,'message': 'Invalid post/user ID or block status'}"})
+     def patch(self, request, id):
+         if request.headers.get('token'):
+             if UserProfile.objects.filter(auth_token=request.headers.get('token')).exists() and UserProfile.objects.get(auth_token=request.headers.get('token')).is_superuser and UserProfile.objects.get(auth_token=request.headers.get('token')).is_staff:
+                 admin = UserProfile.objects.get(id=id)
+                 serializer = UserSerial(admin, data=request.data, partial=True)
+                 if serializer.is_valid():
+                     serializer.save()
+                     return Response({'status': True, 'message': 'Admin updated successfully'})
+                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+             return Response({'status': False, 'message': 'User does not exist'})
+         return Response({'status': False, 'message': 'Token does not exist'})
+# ... existing code ...
+
+     @swagger_auto_schema(operation_description="Delete existing admin",
+    request_body=openapi.Schema(type=openapi.TYPE_OBJECT, required=['id'],
+    properties={'id': openapi.Schema(type=openapi.TYPE_INTEGER, description='ID of the admin to delete')}), 
+    responses={200: "{'status':True,'message': 'Admin deleted successfully'}", 400: "{'status':False,'message': 'Invalid admin ID'}"})
+     def delete(self, request):
+        if request.headers.get('token'):
+            if UserProfile.objects.filter(auth_token=request.headers.get('token')).exists() and UserProfile.objects.get(auth_token=request.headers.get('token')).is_superuser and UserProfile.objects.get(auth_token=request.headers.get('token')).is_staff:
+                admin_id = request.data.get('id')
+                try:
+                    admin = UserProfile.objects.get(id=admin_id)
+                    admin.delete()
+                    return Response({'status': True, 'message': 'Admin deleted successfully'})
+                except UserProfile.DoesNotExist:
+                    return Response({'status': False, 'message': 'Admin does not exist'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'status': False, 'message': 'User does not exist'})
+        return Response({'status': False, 'message': 'Token does not exist'})
+
+
+
 
