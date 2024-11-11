@@ -133,25 +133,19 @@ CACHES = {
     }
 }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-    
+
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': config('MYSQL_DATABASE'),
-#         'USER': config('MYSQL_USER'),
-#         'PASSWORD': config('MYSQL_ROOT_PASSWORD'),
-#         'HOST': config('MYSQL_HOST'),
-#         'PORT': config('MYSQL_PORT'),
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': config('MYSQL_DATABASE'),
+        'USER': config('MYSQL_USER'),
+        'PASSWORD': config('MYSQL_ROOT_PASSWORD'),
+        'HOST': config('MYSQL_HOST'),
+        'PORT': config('MYSQL_PORT'),
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
